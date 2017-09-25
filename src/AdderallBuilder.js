@@ -9,7 +9,7 @@ class AdderallBuilder {
       [Uint32Array.name]: 1
     };
     this.positions = [];
-    this.length = 0;
+    this.length = 4;
     this.id = 0;
 
     this.calculatePositions();
@@ -50,7 +50,7 @@ class ${this.name} {
       views: ${this.buildViews()}
     };
 
-    this.__adderAll.views.Uint32Array[0] = ${this.name}.id();
+    this.__adderAll.views.Uint32Array[0] = ${this.name}.id;
   }
 
   ${this.buildProperties()}
@@ -95,7 +95,7 @@ class ${this.name} {
         return;
       }
 
-      data += JSON.stringify(name) + ': ' + defData;
+      data += name + ': ' + defData;
     });
 
     return data + "\n}";

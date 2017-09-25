@@ -1,8 +1,9 @@
 {
   "dependencies": {
-    "js-beautify": "^1.7.3"
+    "js-beautify": "^1.7.3",
+    "text-encoding": "^0.6.4"
   },
-  "name": "Adderall",
+  "name": "adderall",
   "version": "1.0.0",
   "description": "Object to ArrayBuffer access",
   "main": "index.js",
