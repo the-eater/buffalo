@@ -5,8 +5,8 @@ const typed = (type) => {
     definitions: (name, offsets, length) => {
       return {
         datas: false,
-        get: `return this.__adderAll.views.${type.name}[${offsets[type.name]}];`,
-        set: `this.__adderAll.views.${type.name}[${offsets[type.name]}] = value;`,
+        get: `return this.__buffalo.views.${type.name}[${offsets[type.name]}];`,
+        set: `this.__buffalo.views.${type.name}[${offsets[type.name]}] = value;`,
       }
     },
     count: () => {
@@ -34,26 +34,26 @@ Types.definitions = {
     },
     definitions: (name, offsets, length) => {
       return {
-        get: `const currentRevision = this.__adderAll.views.Uint32Array[${offsets.Uint32Array}];
-        if (this.__adderAll.data.${name}.revision === currentRevision) {
-          return this.__adderAll.data.${name}.value;
+        get: `const currentRevision = this.__buffalo.views.Uint32Array[${offsets.Uint32Array}];
+        if (this.__buffalo.data.${name}.revision === currentRevision) {
+          return this.__buffalo.data.${name}.value;
         }
 
-        this.__adderAll.data.${name}.revision = currentRevision;
+        this.__buffalo.data.${name}.revision = currentRevision;
 
-        const length = this.__adderAll.views.Uint32Array[${offsets.Uint32Array + 1}];
+        const length = this.__buffalo.views.Uint32Array[${offsets.Uint32Array + 1}];
         const textView = new Uint8Array(buffer, ${offsets.Uint8Array} + 16, length);
 
-        this.__adderAll.data.${name}.value = (new TextDecoder()).decode(textView);
-        return this.__adderAll.data.${name}.value;`,
+        this.__buffalo.data.${name}.value = (new TextDecoder()).decode(textView);
+        return this.__buffalo.data.${name}.value;`,
       set: `const textArr = (new TextEncoder()).encode(value.substr(0, ${length}));
         for (var i = 0; i < textArr.length; i++) {
-          this.__adderAll.views.Uint8Array[i + ${offsets.Uint8Array}] = textArr[i];
+          this.__buffalo.views.Uint8Array[i + ${offsets.Uint8Array}] = textArr[i];
         }
 
-        this.__adderAll.data.${name}.value = value;
-        this.__adderAll.views.Uint32Array[${offsets.Uint32Array + 1}] = textArr.length;
-        this.__adderAll.views.Uint32Array[${offsets.Uint32Array}]++;`,
+        this.__buffalo.data.${name}.value = value;
+        this.__buffalo.views.Uint32Array[${offsets.Uint32Array + 1}] = textArr.length;
+        this.__buffalo.views.Uint32Array[${offsets.Uint32Array}]++;`,
      }
    }
   },
