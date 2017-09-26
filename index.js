@@ -1,4 +1,4 @@
 module.exports = {
-  AdderallBuilder: require('./src/AdderallBuilder'),
+  BuffaloGenerator: require('./src/BuffaloGenerator'),
   Types: require('./src/Types'),
 };

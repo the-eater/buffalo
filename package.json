@@ -3,11 +3,11 @@
     "js-beautify": "^1.7.3",
     "text-encoding": "^0.6.4"
   },
-  "name": "adderall",
+  "name": "buffalo",
   "version": "1.0.0",
-  "description": "Object to ArrayBuffer access",
+  "description": "Managing memory like it's C",
   "main": "index.js",
-  "repository": "https://gl.zt.je/eater/Adderall.git",
+  "repository": "https://gl.zt.je/eater/Buffalo.git",
   "author": "eater <node@eaterofco.de>",
   "license": "MIT"
 }
