@@ -12,7 +12,7 @@ const typed = (type) => {
     count: () => {
       return [[type, 1]];
     },
-    data: () => false
+    data: () => undefined
   }
 }
 

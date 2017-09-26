@@ -98,7 +98,7 @@ class ${this.name} {
 
     this.definition.forEach(({ name, type, length }) => {
       let defData = Types.definitions[type].data(name, length);
-      if (defData === false) {
+      if (defData === undefined) {
         return;
       }
 
