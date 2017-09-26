@@ -41,6 +41,7 @@ class MagicWindow {
         this.__buffalo.views.Uint32Array[2] = textArr.length;
         this.__buffalo.views.Uint32Array[1]++;
     }
+
     get id() {
         return this.__buffalo.views.Uint32Array[3];
     }
@@ -48,7 +49,6 @@ class MagicWindow {
     set id(value) {
         this.__buffalo.views.Uint32Array[3] = value;
     }
-
 
     static get id() {
         return 42;

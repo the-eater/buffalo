@@ -70,29 +70,27 @@ class ${this.name} {
   static get length() {
     return ${this.length};
   }
-}
-`
+}`
     return beautify(js) + "\n";
   }
 
   generateProperties() {
-    let properties = "";
+    let properties = [];
     const globalOffsets = Object.entries(this.counters).reduce((carry, [key, { offset }]) => { carry[key] = offset; return carry; }, {});
 
     this.positions.forEach((x) => {
       let [offsets, { name, type, length = 1 }] = x;
       let definitions = Types.definitions[type].definitions({ name, offsets, length, globalOffsets });
-      properties += `get ${name}() {
+      properties.push(`get ${name}() {
         ${definitions.get}
       }
 
       set ${name}(value) {
         ${definitions.set}
-      }
-`
+      }`)
     });
 
-    return properties;
+    return properties.join("\n\n");
   }
 
   generateData() {
