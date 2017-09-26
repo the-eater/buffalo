@@ -2,7 +2,7 @@ const Types = {};
 
 const typed = (type) => {
   return {
-    definitions: (name, offsets, length) => {
+    definitions: ({ name, offsets, length }) => {
       return {
         datas: false,
         get: `return this.__buffalo.views.${type.name}[${offsets[type.name]}];`,
@@ -30,7 +30,7 @@ Types.definitions = {
         revision: -1,
       }`
     },
-    definitions: (name, offsets, length) => {
+    definitions: ({ name, offsets, length, globalOffsets }) => {
       return {
         get: `const currentRevision = this.__buffalo.views.Uint32Array[${offsets.Uint32Array}];
         if (this.__buffalo.data.${name}.revision === currentRevision) {
@@ -40,13 +40,13 @@ Types.definitions = {
         this.__buffalo.data.${name}.revision = currentRevision;
 
         const length = this.__buffalo.views.Uint32Array[${offsets.Uint32Array + 1}];
-        const textView = new Uint8Array(buffer, ${offsets.Uint8Array} + 16, length);
+        const textView = new Uint8Array(buffer, ${offsets.Uint8Array + globalOffsets.Uint8Array}, length);
 
         this.__buffalo.data.${name}.value = (new TextDecoder()).decode(textView);
         return this.__buffalo.data.${name}.value;`,
       set: `const textArr = (new TextEncoder()).encode(value.substr(0, ${length}));
         for (var i = 0; i < textArr.length; i++) {
-          this.__buffalo.views.Uint8Array[i + ${offsets.Uint8Array}] = textArr[i];
+          this.__buffalo.views.Uint8Array[i${offsets.Uint8Array > 0 ? ` + ${offsets.Uint8Array}` : ''}] = textArr[i];
         }
 
         this.__buffalo.data.${name}.value = value;

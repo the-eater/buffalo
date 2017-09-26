@@ -6,7 +6,9 @@ class BuffaloGenerator {
     this.name = name;
     this.definition = definition;
     this.counters = {
-      [Uint32Array.name]: 1
+      [Uint32Array.name]: {
+        length: 1
+      }
     };
     this.positions = [];
     this.length = 4;
@@ -29,15 +31,21 @@ class BuffaloGenerator {
 
       lengths.forEach(([type, count]) => {
         if (this.counters[type.name] === undefined) {
-          this.counters[type.name] = 0;
+          this.counters[type.name] = { length: 0 };
         }
 
-        positions[type.name] = this.counters[type.name];
-        this.counters[type.name] += count;
+        positions[type.name] = this.counters[type.name].length;
+        this.counters[type.name].length += count;
         this.length += count * type.BYTES_PER_ELEMENT;
       });
 
       this.positions.push([positions, def]);
+    });
+
+    let offset = 0;
+    Object.entries(this.counters).forEach(([ type, counter ]) => {
+      counter.offset = offset;
+      offset += counter.length * global[type].BYTES_PER_ELEMENT
     });
   }
 
@@ -69,10 +77,11 @@ class ${this.name} {
 
   generateProperties() {
     let properties = "";
+    const globalOffsets = Object.entries(this.counters).reduce((carry, [key, { offset }]) => { carry[key] = offset; return carry; }, {});
 
     this.positions.forEach((x) => {
       let [offsets, { name, type, length = 1 }] = x;
-      let definitions = Types.definitions[type].definitions(name, offsets, length);
+      let definitions = Types.definitions[type].definitions({ name, offsets, length, globalOffsets });
       properties += `get ${name}() {
         ${definitions.get}
       }
@@ -102,18 +111,15 @@ class ${this.name} {
   }
 
   generateViews() {
-    let offset = 0;
     let views = [];
-    Object.entries(this.counters).forEach(([ type, length ]) => {
+    Object.entries(this.counters).forEach(([ type, counter ]) => {
       views.push(
         this.generateView({
           type,
-          offset,
-          length,
+          offset: counter.offset,
+          length: counter.length,
         })
       );
-
-      offset += length * global[type].BYTES_PER_ELEMENT;
     });
 
     return `{

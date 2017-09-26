@@ -25,7 +25,7 @@ class MagicWindow {
         this.__buffalo.data.name.revision = currentRevision;
 
         const length = this.__buffalo.views.Uint32Array[2];
-        const textView = new Uint8Array(buffer, 0 + 16, length);
+        const textView = new Uint8Array(buffer, 16, length);
 
         this.__buffalo.data.name.value = (new TextDecoder()).decode(textView);
         return this.__buffalo.data.name.value;
@@ -34,7 +34,7 @@ class MagicWindow {
     set name(value) {
         const textArr = (new TextEncoder()).encode(value.substr(0, 24));
         for (var i = 0; i < textArr.length; i++) {
-            this.__buffalo.views.Uint8Array[i + 0] = textArr[i];
+            this.__buffalo.views.Uint8Array[i] = textArr[i];
         }
 
         this.__buffalo.data.name.value = value;
