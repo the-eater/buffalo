@@ -16,8 +16,6 @@ const typed = (type) => {
   }
 }
 
-Types.getName = (name) => typeToLower[name];
-
 Types.definitions = {
   string: {
     count: (length) => {
