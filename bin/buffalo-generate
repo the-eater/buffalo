@@ -1,0 +1,38 @@
+#!/usr/bin/env node
+const { BuffaloGenerator } = require('../index');
+const fs = require('fs');
+
+console.error("Welcome to the Buffalo Generator");
+if (process.argv.length < 4) {
+  console.error(`Usage: ${process.argv0} [json buffalo definition] [output file]`);
+  process.exit(1);
+  return;
+}
+
+const file = process.argv[2];
+const output = process.argv[3];
+console.error("Input: " + file);
+console.error("Output: " + output);
+
+fs.readFile(file, (err, data) => {
+  if (err) {
+    console.error(`Failed to read input file: ${err.message}`);
+    process.exit(1);
+    return;
+  }
+
+  const json = data.toString('utf8');
+  const def = JSON.parse(json);
+  const generator = new BuffaloGenerator(def.name, def.properties);
+  generator.id = def.id || 0;
+  let js = generator.generate();
+  fs.writeFile(output, js, (err) => {
+    if (err) {
+      console.log(`Failed to write output file: ${err.messsage}`);
+      process.exit(1);
+      return;
+    }
+
+    console.log("Success!");
+  })
+});

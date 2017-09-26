@@ -1,0 +1,15 @@
+{
+  "name": "MagicWindow",
+  "id": 42,
+  "properties": [
+    {
+      "name": "name",
+      "type": "string",
+      "length": 24
+    },
+    {
+      "name": "id",
+      "type": "uint32"
+    }
+  ]
+}

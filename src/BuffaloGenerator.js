@@ -64,7 +64,7 @@ class ${this.name} {
   }
 }
 `
-    return beautify(js);
+    return beautify(js) + "\n";
   }
 
   generateProperties() {

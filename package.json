@@ -4,10 +4,16 @@
     "text-encoding": "^0.6.4"
   },
   "name": "buffalo",
+  "bin": {
+    "buffalo-generate": "./bin/buffalo-generate"
+  },
   "version": "1.0.0",
   "description": "Managing memory like it's C",
   "main": "index.js",
   "repository": "https://gl.zt.je/eater/Buffalo.git",
   "author": "eater <node@eaterofco.de>",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "expresso": "^0.9.2"
+  }
 }
