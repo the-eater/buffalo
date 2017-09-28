@@ -4,17 +4,16 @@ const typed = (type) => {
   return {
     definitions: ({ name, offsets, length }) => {
       return {
-        datas: false,
         get: `return this.__buffalo.views.${type.name}[${offsets[type.name]}];`,
         set: `this.__buffalo.views.${type.name}[${offsets[type.name]}] = value;`,
-      }
+      };
     },
     count: () => {
       return [[type, 1]];
     },
     data: () => undefined
-  }
-}
+  };
+};
 
 Types.definitions = {
   string: {
@@ -24,11 +23,11 @@ Types.definitions = {
         [Uint8Array, 4 * length]
       ];
     },
-    data: (name, length) => {
+    data: () => {
       return `{
         value: "",
         revision: -1,
-      }`
+      }`;
     },
     definitions: ({ name, offsets, length, globalOffsets }) => {
       return {
@@ -52,7 +51,7 @@ Types.definitions = {
         this.__buffalo.data.${name}.value = value;
         this.__buffalo.views.Uint32Array[${offsets.Uint32Array + 1}] = textArr.length;
         this.__buffalo.views.Uint32Array[${offsets.Uint32Array}]++;`,
-     }
+     };
    }
   },
 

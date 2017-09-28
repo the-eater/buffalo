@@ -19,7 +19,7 @@ class BuffaloGenerator {
 
   calculatePositions() {
     this.definition.forEach((def) => {
-      let { name, type, length } = def;
+      let { type, length } = def;
       if (!Types.definitions[type]) {
         throw new Error(`Type ${type} doesn't exist`);
       }
@@ -45,7 +45,7 @@ class BuffaloGenerator {
     let offset = 0;
     Object.entries(this.counters).forEach(([ type, counter ]) => {
       counter.offset = offset;
-      offset += counter.length * global[type].BYTES_PER_ELEMENT
+      offset += counter.length * global[type].BYTES_PER_ELEMENT;
     });
   }
 
@@ -70,7 +70,7 @@ class ${this.name} {
   static get length() {
     return ${this.length};
   }
-}`
+}`;
     return beautify(js) + "\n";
   }
 
@@ -87,7 +87,7 @@ class ${this.name} {
 
       set ${name}(value) {
         ${definitions.set}
-      }`)
+      }`);
     });
 
     return properties.join("\n\n");
@@ -122,11 +122,11 @@ class ${this.name} {
 
     return `{
       ${views.join(',\n')}
-    }`
+    }`;
   }
 
   generateView({ type, offset, length }) {
-    return `${type}: new ${type}(buffer, offset${offset == 0 ? '' : ` + ${offset}`}, ${length})`
+    return `${type}: new ${type}(buffer, offset${offset === 0 ? '' : ` + ${offset}`}, ${length})`
   }
 }
 

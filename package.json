@@ -1,11 +1,15 @@
 {
   "dependencies": {
     "js-beautify": "^1.7.3",
+    "mocha": "^3.5.3",
     "text-encoding": "^0.6.4"
   },
   "name": "buffalo",
   "bin": {
     "buffalo-generate": "./bin/buffalo-generate"
+  },
+  "scripts": {
+    "test": "mocha"
   },
   "version": "1.0.0",
   "description": "Managing memory like it's C",
@@ -14,6 +18,7 @@
   "author": "eater <node@eaterofco.de>",
   "license": "MIT",
   "devDependencies": {
-    "expresso": "^0.9.2"
+    "jshint": "^2.9.5",
+    "nyc": "^11.2.1"
   }
 }
