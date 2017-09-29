@@ -1,5 +1,7 @@
 # Buffalo
 
+[![pipeline status](https://gl.zt.je/eater/buffalo/badges/master/pipeline.svg)](https://gl.zt.je/eater/buffalo/commits/master) [![coverage report](https://gl.zt.je/eater/buffalo/badges/master/coverage.svg)](https://gl.zt.je/eater/buffalo/commits/master)
+
 Memory management like it's C
 
 ## Usage
