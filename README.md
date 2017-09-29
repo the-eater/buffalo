@@ -52,38 +52,35 @@ console.log(x.id); // Will print 12
 
 ## Why would this be useful?
 
-Currently the biggest bottleneck in WebWorker's are communicating with them.
-Our current communication options are passing plain objects, which is slow because it will copy them, or passing `Transferable` objects, which is really fast but invalidates the `Transferable` at the sender side, meaning you're constantly reinitializing it.
+Currently the biggest bottleneck in using WebWorkers is communicating with them.
+Our current communication options are passing plain objects, which is slow because it will copy them, or passing `Transferable` objects, which is really fast but invalidates the `Transferable` at the sender side, meaning you're constantly reinitializing it. [NB: In what use cases is this an issue? Give some concrete examples and paint a broad picture]
 
 Since recently
 [`SharedArrayBuffer`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer)
-exists, which is *super* fast, as this just shares the memory space between 2 threads (theoretically, practically it may be that's it's actively copying parts of the memory, which would be retarted imo.)
+exists, which is *super* fast, as this just shares the memory space between 2 threads, but a `SharedArrayBuffer` is an array of *numbers* and we want objects!
 
-but an `SharedArrayBuffer` is an array of *numbers* and we want our objects!
+This is exactly what Buffalo tries to solve: By disguising an `ArrayBuffer` as an object instance, it may feel like you're just editing a simple object, but you're actually mutating the `ArrayBuffer` behind it.
 
-This is exactly what Buffalo tries to solve.
-by disguising an `ArrayBuffer` as an object instance, it may feel like you're just editing a simple object, but you're actually mutating the `ArrayBuffer` behind it.
-
-The only problem we're currently facing is locking *effienctly*. in the WebWorker's you may use `Atomics.wait` to lock, but these are disallowed in the main / window thread, you could in this case fallback to a `while(1) { ... }` but I would like to discourage that. Still even with these solutions, locking is still not user friendly.
+The only problem we're currently facing is locking *efficiently*. Inside the WebWorkers you can use `Atomics.wait` to lock, but these are disallowed in the main / window thread. You could in this case fallback to a `while(1) { ... }` but I would like to discourage that. Still even with these solutions, locking is still not user friendly.
 
 ## Planned
 
 ### Memory manager
 
-An instance that decides where objects should be instanciated and if we should grow our current memory space. also would allow dynamically sized objects
+An object that decides where objects should be instantiated and whether or not the current memory space needs to be grown. Would allow for dynamically sized objects. [NB: And what you have now would not? Why not?]
 
-### Pointer's
+### Pointers
 
-well, yea, pointing to a memory address. you know, like C does.
+C-style pointers. You know the drill.
 
-### Dyanmic Array's
+### Dyanmic Arrays
 
-with the help of an memory manager be able to grow and shrink an array when needed. most likely in the way C# iirc. does it, constantly doubling our object space. most likely this will be strongly typed.
+Dynamically growing array, in the C# List style (that grows a backing array by N items as necessary). Will probably be strongly typed.
 
 ### Shared memory manager
 
-Memory manager that works and communicatates over multiple websockets.
+A memory manager that works and communicatates over multiple websockets.
 
 ### Locking
 
-yes, that's going to be useful once we're going full async
+Necessary for async stuff.
