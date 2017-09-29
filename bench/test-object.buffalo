@@ -1,0 +1,23 @@
+{
+  "name": "TestObject",
+  "id": 42,
+  "properties": [
+    {
+      "name": "hello",
+      "type": "string",
+      "length": 24
+    },
+    {
+      "name": "ye",
+      "type": "int32"
+    },
+    {
+      "name": "l",
+      "type": "uint8"
+    },
+    {
+      "name": "no",
+      "type": "int32"
+    }
+  ]
+}
