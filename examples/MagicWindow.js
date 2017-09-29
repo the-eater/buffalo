@@ -8,9 +8,12 @@ class MagicWindow {
                 }
             },
             views: {
-                Uint32Array: new Uint32Array(buffer, offset, 4),
-                Uint8Array: new Uint8Array(buffer, offset + 16, 96)
-            }
+                Uint32Array: new Uint32Array(buffer, offset, 3),
+                Uint8Array: new Uint8Array(buffer, offset + 12, 97),
+                Int32Array: new Int32Array(buffer, offset + 112, 1)
+            },
+            buffer: buffer,
+            offset: offset
         };
 
         this.__buffalo.views.Uint32Array[0] = MagicWindow.id;
@@ -25,7 +28,7 @@ class MagicWindow {
         this.__buffalo.data.name.revision = currentRevision;
 
         const length = this.__buffalo.views.Uint32Array[2];
-        const textView = new Uint8Array(buffer, 16, length);
+        const textView = new Uint8Array(this.__buffalo.buffer, this.__buffalo.offset + 12, length);
 
         this.__buffalo.data.name.value = (new TextDecoder()).decode(textView);
         return this.__buffalo.data.name.value;
@@ -42,12 +45,20 @@ class MagicWindow {
         this.__buffalo.views.Uint32Array[1]++;
     }
 
+    get off() {
+        return this.__buffalo.views.Uint8Array[96];
+    }
+
+    set off(value) {
+        this.__buffalo.views.Uint8Array[96] = value;
+    }
+
     get id() {
-        return this.__buffalo.views.Uint32Array[3];
+        return this.__buffalo.views.Int32Array[0];
     }
 
     set id(value) {
-        this.__buffalo.views.Uint32Array[3] = value;
+        this.__buffalo.views.Int32Array[0] = value;
     }
 
     static get id() {
@@ -55,6 +66,6 @@ class MagicWindow {
     }
 
     static get length() {
-        return 112;
+        return 116;
     }
 }
