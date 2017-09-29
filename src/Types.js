@@ -39,7 +39,7 @@ Types.definitions = {
         this.__buffalo.data.${name}.revision = currentRevision;
 
         const length = this.__buffalo.views.Uint32Array[${offsets.Uint32Array + 1}];
-        const textView = new Uint8Array(buffer, ${offsets.Uint8Array + globalOffsets.Uint8Array}, length);
+        const textView = new Uint8Array(this.__buffalo.buffer, this.__buffalo.offset + ${offsets.Uint8Array + globalOffsets.Uint8Array}, length).slice();
 
         this.__buffalo.data.${name}.value = (new TextDecoder()).decode(textView);
         return this.__buffalo.data.${name}.value;`,

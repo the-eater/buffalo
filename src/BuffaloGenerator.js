@@ -36,7 +36,6 @@ class BuffaloGenerator {
 
         positions[type.name] = this.counters[type.name].length;
         this.counters[type.name].length += count;
-        this.length += count * type.BYTES_PER_ELEMENT;
       });
 
       this.positions.push([positions, def]);
@@ -44,9 +43,13 @@ class BuffaloGenerator {
 
     let offset = 0;
     Object.entries(this.counters).forEach(([ type, counter ]) => {
+      const bytes = global[type].BYTES_PER_ELEMENT;
+      offset = offset === 0 ? 0 : Math.ceil(offset / bytes) * bytes;
       counter.offset = offset;
       offset += counter.length * global[type].BYTES_PER_ELEMENT;
     });
+
+    this.length = offset;
   }
 
   generate() {
@@ -55,7 +58,9 @@ class ${this.name} {
   constructor(buffer, offset) {
     this.__buffalo = {
       data: ${this.generateData()},
-      views: ${this.generateViews()}
+      views: ${this.generateViews()},
+      buffer: buffer,
+      offset: offset
     };
 
     this.__buffalo.views.Uint32Array[0] = ${this.name}.id;
