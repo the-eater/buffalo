@@ -1,7 +1,23 @@
 image: hub.zt.je/docker/node
-before_script:
-  - yarn
 
-test:
+stages:
+  - test
+  - deploy
+
+test:mocha:
+  stage: test
   script:
+    - yarn
     - nyc mocha
+
+deploy:github:
+  stage: deploy
+  script:
+    - mkdir "/root/.ssh"
+    - echo "${DEPLOY_KEY}" > "/root/.ssh/id_rsa"
+    - chmod 600 /root/.ssh/id_rsa
+    - echo "${HOSTKEY}" > "/root/.ssh/known_hosts"
+    - git fetch origin master
+    - git push -f git@github.com:the-eater/buffalo.git "${CI_COMMIT_SHA}:master"
+  only:
+    - master
