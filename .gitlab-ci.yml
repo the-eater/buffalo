@@ -1,4 +1,4 @@
-image: hub.zt.je/eater/buffalo
+image: hub.zt.je/docker/node
 before_script:
   - yarn
 
