@@ -1,0 +1,7 @@
+image: hub.zt.je/eater/buffalo
+before_script:
+  - yarn
+
+test:
+  script:
+    - nyc mocha
