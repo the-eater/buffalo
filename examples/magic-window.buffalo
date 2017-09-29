@@ -8,8 +8,12 @@
       "length": 24
     },
     {
+      "name": "off",
+      "type": "uint8"
+    },
+    {
       "name": "id",
-      "type": "uint32"
+      "type": "int32"
     }
   ]
 }

@@ -7,12 +7,24 @@ const jshintConfig = JSON.parse(fs.readFileSync(__dirname + '/../.jshintrc'));
 
 
 describe('BuffaloGenerator', () => {
+    let obj;
+    let js;
     it('jshint', () => {
         const x = new BuffaloGenerator(definition.name, definition.properties);
         x.id = definition.id;
-        const js = x.generate();
+        js = x.generate();
         JSHINT([js], jshintConfig);
         assert(JSHINT.errors.length > 0, 'Generated code doesn\'t pass JSHint');
+
+    });
+
+    it('executes', () => {
+        eval('obj = ' + js);
+    });
+
+    it('can spawn', () => {
+        let x = new ArrayBuffer(obj.length);
+        let z = new obj(x, 0);
     });
 
     it('fail on undefined type', () => {
