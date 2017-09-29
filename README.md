@@ -53,7 +53,7 @@ console.log(x.id); // Will print 12
 ## Why would this be useful?
 
 Currently the biggest bottleneck in using WebWorkers is communicating with them.
-Our current communication options are passing plain objects, which is slow because it will copy them, or passing `Transferable` objects, which is really fast but invalidates the `Transferable` at the sender side, meaning you're constantly reinitializing it. [NB: In what use cases is this an issue? Give some concrete examples and paint a broad picture]
+Our current communication options are passing plain objects, which is slow because it will copy them, or passing `Transferable` objects, which is pretty fast but invalidates the `Transferable` at the sender side, meaning you're constantly passing it around.
 
 Since recently
 [`SharedArrayBuffer`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer)
@@ -67,7 +67,7 @@ The only problem we're currently facing is locking *efficiently*. Inside the Web
 
 ### Memory manager
 
-An object that decides where objects should be instantiated and whether or not the current memory space needs to be grown. Would allow for dynamically sized objects. [NB: And what you have now would not? Why not?]
+An object that decides where objects should be instantiated and whether or not the current memory space needs to be grown. This would allow for dynamically sized objects to be placed on the same buffer without colliding with eachother
 
 ### Pointers
 
@@ -75,7 +75,7 @@ C-style pointers. You know the drill.
 
 ### Dyanmic Arrays
 
-Dynamically growing array, in the C# List style (that grows a backing array by N items as necessary). Will probably be strongly typed.
+Dynamically growing array, in the C# List style (that grows a backing array by *N* items as necessary). Will probably be strongly typed.
 
 ### Shared memory manager
 
