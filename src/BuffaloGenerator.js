@@ -131,7 +131,7 @@ class ${this.name} {
   }
 
   generateView({ type, offset, length }) {
-    return `${type}: new ${type}(buffer, offset${offset === 0 ? '' : ` + ${offset}`}, ${length})`
+    return `${type}: new ${type}(buffer, offset${offset === 0 ? '' : ` + ${offset}`}, ${length})`;
   }
 }
 
