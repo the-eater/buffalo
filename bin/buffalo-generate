@@ -11,6 +11,7 @@ if (process.argv.length < 4) {
 
 const file = process.argv[2];
 const output = process.argv[3];
+const shouldExport = process.argv[4] || false;
 console.error("Input: " + file);
 console.error("Output: " + output);
 
@@ -26,6 +27,24 @@ fs.readFile(file, (err, data) => {
   const generator = new BuffaloGenerator(def.name, def.properties);
   generator.id = def.id || 0;
   let js = generator.generate();
+
+  if (shouldExport) {
+    js = `if(module) {
+  let polyfill = require('text-encoding');
+  TextEncoder = (() => { try { return TextEncoder } catch (_) { return false; } })() || polyfill.TextEncoder;
+  TextDecoder = (() => { try { return TextDecoder } catch (_) { return false; } })() || polyfill.TextDecoder; 
+}
+
+` + js + `
+
+if (module) {
+  module.exports = {
+    ${def.name}: ${def.name}
+  };
+} 
+`
+  }
+
   fs.writeFile(output, js, (err) => {
     if (err) {
       console.log(`Failed to write output file: ${err.messsage}`);
