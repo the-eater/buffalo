@@ -8,7 +8,7 @@ stages:
 lint:jshint:
   stage: lint
   script:
-    - jshint index.js src
+    - jshint index.js src lib
 
 test:mocha:
   stage: test
