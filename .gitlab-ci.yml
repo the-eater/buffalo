@@ -1,8 +1,14 @@
 image: hub.zt.je/docker/node
 
 stages:
+  - lint
   - test
   - deploy
+
+lint:jshint:
+  stage: lint
+  script:
+    - jshint index.js src
 
 test:mocha:
   stage: test

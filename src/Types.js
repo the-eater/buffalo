@@ -65,6 +65,6 @@ Types.definitions = {
 
   float32: typed(Float32Array),
   float64: typed(Float64Array),
-}
+};
 
 module.exports = Types;
