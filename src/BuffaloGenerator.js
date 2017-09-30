@@ -7,11 +7,11 @@ class BuffaloGenerator {
     this.definition = definition;
     this.counters = {
       [Uint32Array.name]: {
-        length: 1
+        size: 1
       }
     };
     this.positions = [];
-    this.length = 4;
+    this.size = 4;
     this.id = 0;
 
     this.calculatePositions();
@@ -19,23 +19,22 @@ class BuffaloGenerator {
 
   calculatePositions() {
     this.definition.forEach((def) => {
-      let { type, length } = def;
+      let { type, size } = def;
       if (!Types.definitions[type]) {
         throw new Error(`Type ${type} doesn't exist`);
       }
 
-      let typeObj = Types.definitions[type];
+      const typeObj = Types.definitions[type];
+      const sizes = typeObj.count(size);
+      const positions = {};
 
-      let lengths = typeObj.count(length);
-      let positions = {};
-
-      lengths.forEach(([type, count]) => {
+      sizes.forEach(([type, count]) => {
         if (this.counters[type.name] === undefined) {
-          this.counters[type.name] = { length: 0 };
+          this.counters[type.name] = { size: 0 };
         }
 
-        positions[type.name] = this.counters[type.name].length;
-        this.counters[type.name].length += count;
+        positions[type.name] = this.counters[type.name].size;
+        this.counters[type.name].size += count;
       });
 
       this.positions.push([positions, def]);
@@ -46,16 +45,16 @@ class BuffaloGenerator {
       const bytes = global[type].BYTES_PER_ELEMENT;
       offset = offset === 0 ? 0 : Math.ceil(offset / bytes) * bytes;
       counter.offset = offset;
-      offset += counter.length * global[type].BYTES_PER_ELEMENT;
+      offset += counter.size * global[type].BYTES_PER_ELEMENT;
     });
 
-    this.length = offset;
+    this.size = offset;
   }
 
   generate() {
     let js = `
 class ${this.name} {
-  constructor(buffer, offset) {
+  constructor({ buffer, offset }) {
     this.__buffalo = {
       data: ${this.generateData()},
       views: ${this.generateViews()},
@@ -72,8 +71,8 @@ class ${this.name} {
     return ${this.id};
   }
 
-  static get length() {
-    return ${this.length};
+  static get size() {
+    return ${this.size};
   }
 }`;
     return beautify(js) + "\n";
@@ -84,8 +83,8 @@ class ${this.name} {
     const globalOffsets = Object.entries(this.counters).reduce((carry, [key, { offset }]) => { carry[key] = offset; return carry; }, {});
 
     this.positions.forEach((x) => {
-      let [offsets, { name, type, length = 1 }] = x;
-      let definitions = Types.definitions[type].definitions({ name, offsets, length, globalOffsets });
+      let [offsets, { name, type, size = 1 }] = x;
+      let definitions = Types.definitions[type].definitions({ name, offsets, size, globalOffsets });
       properties.push(`get ${name}() {
         ${definitions.get}
       }
@@ -101,8 +100,8 @@ class ${this.name} {
   generateData() {
     let data = "{\n";
 
-    this.definition.forEach(({ name, type, length }) => {
-      let defData = Types.definitions[type].data(name, length);
+    this.definition.forEach(({ name, type, size }) => {
+      let defData = Types.definitions[type].data(name, size);
       if (defData === undefined) {
         return;
       }
@@ -120,7 +119,7 @@ class ${this.name} {
         this.generateView({
           type,
           offset: counter.offset,
-          length: counter.length,
+          size: counter.size,
         })
       );
     });
@@ -130,8 +129,8 @@ class ${this.name} {
     }`;
   }
 
-  generateView({ type, offset, length }) {
-    return `${type}: new ${type}(buffer, offset${offset === 0 ? '' : ` + ${offset}`}, ${length})`;
+  generateView({ type, offset, size }) {
+    return `${type}: new ${type}(buffer, offset${offset === 0 ? '' : ` + ${offset}`}, ${size})`;
   }
 }
 
