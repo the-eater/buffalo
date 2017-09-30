@@ -1,38 +1,53 @@
 const fs = require('fs');
 const assert = require('assert');
-const { JSHINT } = require('jshint');
+const {JSHINT} = require('jshint');
 const { BuffaloGenerator } = require(__dirname + '/../index.js');
+const { MagicWindow } = require('../examples/MagicWindow');
 const definition = JSON.parse(fs.readFileSync(__dirname + '/../examples/magic-window.buffalo'));
 const jshintConfig = JSON.parse(fs.readFileSync(__dirname + '/../.jshintrc'));
 
 
 describe('BuffaloGenerator', () => {
-    let obj;
-    let js;
-    it('jshint', () => {
-        const x = new BuffaloGenerator(definition.name, definition.properties);
-        x.id = definition.id;
-        js = x.generate();
-        JSHINT([js], jshintConfig);
-        assert(JSHINT.errors.length > 0, 'Generated code doesn\'t pass JSHint');
+  let obj;
+  let js;
+  it('jshint', () => {
+    const x = new BuffaloGenerator(definition.name, definition.properties);
+    x.id = definition.id;
+    js = x.generate();
+    JSHINT([js], jshintConfig);
+    assert(JSHINT.errors.length > 0, 'Generated code doesn\'t pass JSHint');
+  });
 
-    });
+  it('creates caching strings', () => {
+    let buf = new ArrayBuffer(MagicWindow.size);
+    let mw = new MagicWindow({ buffer: buf, offset: 0 });
+    mw.name = 'Help!';
 
-    it('executes', () => {
-        eval('obj = ' + js);
-    });
+    assert.equal(mw.name, 'Help!');
 
-    it('can spawn', () => {
-        let x = new ArrayBuffer(obj.length);
-        let z = new obj(x, 0);
-    });
+    // poison real string
+    for (let i = 0; i < mw.__buffalo.views.Uint8Array.length; i++) {
+      mw.__buffalo.views.Uint8Array[i] = 0;
+    }
 
-    it('fail on undefined type', () => {
-        assert.throws(
-            () => {
-                new BuffaloGenerator(definition.name, [{ type: 'h' }]);
-            },
-            /Type .* doesn't exist/
-        );
-    });
+    assert.equal(mw.name, 'Help!');
+  });
+
+  it('executes', () => {
+    eval('obj = ' + js);
+  });
+
+  it('can spawn', () => {
+    let x = new ArrayBuffer(obj.size);
+    let z = new obj({buffer: x, offset: 0});
+  });
+
+  it('fail on undefined type', () => {
+    assert.throws(
+      () => {
+        new BuffaloGenerator(definition.name, [{type: 'h'}]);
+      },
+      /Type .* doesn't exist/
+    );
+  });
 });
