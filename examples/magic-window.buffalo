@@ -5,7 +5,7 @@
     {
       "name": "name",
       "type": "string",
-      "length": 24
+      "size": 24
     },
     {
       "name": "off",

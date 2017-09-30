@@ -1,5 +1,14 @@
+if(module) {
+  let polyfill = require('text-encoding');
+  TextEncoder = (() => { try { return TextEncoder } catch (_) { return false; } })() || polyfill.TextEncoder;
+  TextDecoder = (() => { try { return TextDecoder } catch (_) { return false; } })() || polyfill.TextDecoder; 
+}
+
 class MagicWindow {
-    constructor(buffer, offset) {
+    constructor({
+        buffer,
+        offset
+    }) {
         this.__buffalo = {
             data: {
                 name: {
@@ -28,7 +37,7 @@ class MagicWindow {
         this.__buffalo.data.name.revision = currentRevision;
 
         const length = this.__buffalo.views.Uint32Array[2];
-        const textView = new Uint8Array(this.__buffalo.buffer, this.__buffalo.offset + 12, length);
+        const textView = new Uint8Array(this.__buffalo.buffer, this.__buffalo.offset + 12, length).slice();
 
         this.__buffalo.data.name.value = (new TextDecoder()).decode(textView);
         return this.__buffalo.data.name.value;
@@ -65,7 +74,14 @@ class MagicWindow {
         return 42;
     }
 
-    static get length() {
+    static get size() {
         return 116;
     }
 }
+
+
+if (module) {
+  module.exports = {
+    MagicWindow: MagicWindow
+  };
+} 
