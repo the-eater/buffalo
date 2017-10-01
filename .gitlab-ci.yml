@@ -41,12 +41,14 @@ test:build-docs:
 
 deploy:github:
   stage: deploy
+  variables:
+    GIT_STRATEGY: clone
+    GIT_CHECKOUT: 'false'
   script:
     - mkdir "/root/.ssh"
     - echo "${DEPLOY_KEY}" > "/root/.ssh/id_rsa"
     - chmod 600 /root/.ssh/id_rsa
     - echo "${HOSTKEY}" > "/root/.ssh/known_hosts"
-    - git fetch origin master
-    - git push -f git@github.com:the-eater/buffalo.git "${CI_COMMIT_SHA}:master"
+    - git push -f git@github.com:the-eater/buffalo.git master
   only:
     - master
