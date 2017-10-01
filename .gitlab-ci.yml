@@ -37,6 +37,8 @@ test:build-docs:
       fi
   only:
     - master
+  environment:
+    name: production
 
 deploy:github:
   stage: deploy
