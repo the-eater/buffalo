@@ -20,6 +20,8 @@ test:mocha:
 test:build-docs:
   stage: build-docs
   script:
+    - git fetch --all
+    - git checkout master
     - yarn
     - yarn build-docs
     - git add docs/api;
@@ -27,6 +29,8 @@ test:build-docs:
         git commit -m 'Automated docs generation';
         git push;
       fi
+  only:
+    - master
 
 deploy:github:
   stage: deploy
