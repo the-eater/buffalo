@@ -63,9 +63,12 @@ This is exactly what Buffalo tries to solve: By disguising an `ArrayBuffer` as a
 
 The only problem we're currently facing is locking *efficiently*. Inside the WebWorkers you can use `Atomics.wait` to lock, but these are disallowed in the main / window thread. You could in this case fallback to a `while(1) { ... }` but I would like to discourage that. Still even with these solutions, locking is still not user friendly.
 
-## Planned
+## Done
+
 
 ### Memory manager
+
+See 
 
 An object that decides where objects should be instantiated and whether or not the current memory space needs to be grown. This would allow for dynamically sized objects to be placed on the same buffer without colliding with eachother
 
@@ -73,13 +76,16 @@ An object that decides where objects should be instantiated and whether or not t
 
 C-style pointers. You know the drill.
 
-### Dyanmic Arrays
+
+## Planned
+
+### Dynamic Arrays
 
 Dynamically growing array, in the C# List style (that grows a backing array by *N* items as necessary). Will probably be strongly typed.
 
 ### Shared memory manager
 
-A memory manager that works and communicatates over multiple websockets.
+A memory manager that works over multiple WebWorkers.
 
 ### Locking
 

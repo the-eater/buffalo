@@ -8,11 +8,11 @@ class MagicWindow {
                 name: {
                     value: "",
                     revision: -1,
-                }
+                },
                 next: {
                     cache: undefined,
                     position: [],
-                }
+                },
             },
             views: {
                 Uint32Array: new Uint32Array(buffer, offset, 5),
