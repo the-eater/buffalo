@@ -76,7 +76,7 @@ Types.definitions = {
       return `{
         cache: undefined,
         position: [],
-      }`
+      }`;
     },
     definitions: ({name, offsets}) => {
       return {
@@ -101,7 +101,7 @@ this.__buffalo.data.${name}.cache = value`,
 this.__buffalo.data.position[1] = value[1];`,
           }
         }
-      }
+      };
     }
   }
 };
