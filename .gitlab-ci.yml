@@ -18,14 +18,14 @@ test:mocha:
     - yarn test
 
 test:build-docs:
-  stage: test
+  stage: build-docs
   script:
     - yarn
     - yarn build-docs
-    - if ! git diff --quiet -w docs/api; then \
-        git add docs/api; \
-        git commit -m 'Automated docs generation'; \
-        git push; \
+    - if ! git diff --quiet -w docs/api; then
+        git add docs/api;
+        git commit -m 'Automated docs generation';
+        git push;
       fi
 
 deploy:github:
