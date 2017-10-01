@@ -1,5 +1,9 @@
 image: hub.zt.je/docker/node
 
+cache:
+  paths:
+  - node_modules
+
 stages:
   - lint
   - test
@@ -19,8 +23,10 @@ test:mocha:
 
 test:build-docs:
   stage: build-docs
+  variables:
+    GIT_STRATEGY: clone
+    GIT_CHECKOUT: false
   script:
-    - git fetch --all
     - git checkout master
     - yarn
     - yarn build-docs
