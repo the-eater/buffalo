@@ -129,10 +129,10 @@ class ${this.name} {
         return;
       }
 
-      data += name + ': ' + defData;
+      data += name + ': ' + defData + ',\n';
     });
 
-    return data + "\n}";
+    return data + "}";
   }
 
   generateViews() {
