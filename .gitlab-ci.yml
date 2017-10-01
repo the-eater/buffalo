@@ -32,7 +32,7 @@ test:build-docs:
     - yarn build-docs
     - git add docs/api;
     - if ! git diff --quiet -w --staged; then
-        git remote set-url origin "https://pusher:${PUSH_TOKEN}@gl.zt.je/the-eater/buffalo.git";
+        git remote set-url origin "https://pusher:${PUSH_TOKEN}@gl.zt.je/eater/buffalo.git";
         git commit -m '[ci skip] Automated docs generation';
         git push;
       fi
