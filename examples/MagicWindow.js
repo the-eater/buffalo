@@ -1,3 +1,9 @@
+if(module) {
+  let polyfill = require('text-encoding');
+  TextEncoder = (() => { try { return TextEncoder } catch (_) { return false; } })() || polyfill.TextEncoder;
+  TextDecoder = (() => { try { return TextDecoder } catch (_) { return false; } })() || polyfill.TextDecoder; 
+}
+
 class MagicWindow {
     constructor({
         buffer,
@@ -113,3 +119,10 @@ class MagicWindow {
         return 124;
     }
 }
+
+
+if (module) {
+  module.exports = {
+    MagicWindow: MagicWindow
+  };
+} 
