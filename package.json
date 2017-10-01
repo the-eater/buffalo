@@ -18,6 +18,7 @@
   "author": "eater <node@eaterofco.de>",
   "license": "MIT",
   "devDependencies": {
+    "jsdoc": "^3.5.5",
     "jshint": "^2.9.5",
     "nyc": "^11.2.1"
   }
