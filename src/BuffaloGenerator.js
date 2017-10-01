@@ -67,6 +67,14 @@ class ${this.name} {
 
   ${this.generateProperties()}
 
+  free() {
+    if (this.__buffalo.memoryManager) {
+      this.__buffalo.memoryManager.position.free();
+    }
+
+    return false;
+  }
+
   static get id() {
     return ${this.id};
   }
@@ -92,6 +100,21 @@ class ${this.name} {
       set ${name}(value) {
         ${definitions.set}
       }`);
+
+      if (definitions.extra) {
+        Object.keys(definitions.extra).forEach((key) => {
+          const definition = definitions.extra[key];
+
+          properties.push(`get ${key}() {
+            ${definition.get}
+          }
+
+          set ${key}(value) {
+            ${definition.set}
+          }`);
+        });
+
+      }
     });
 
     return properties.join("\n\n");
