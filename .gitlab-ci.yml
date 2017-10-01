@@ -28,6 +28,7 @@ deploy:github:
     GIT_STRATEGY: clone
     GIT_CHECKOUT: 'false'
   script:
+    - git checkout master
     - mkdir "/root/.ssh"
     - echo "${DEPLOY_KEY}" > "/root/.ssh/id_rsa"
     - chmod 600 /root/.ssh/id_rsa
@@ -42,6 +43,7 @@ docs-build:
     GIT_STRATEGY: clone
     GIT_CHECKOUT: 'false'
   script:
+    - git checkout master
     - yarn
     - yarn build-docs
   artifacts:
