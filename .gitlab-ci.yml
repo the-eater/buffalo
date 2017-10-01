@@ -3,6 +3,7 @@ image: hub.zt.je/docker/node
 stages:
   - lint
   - test
+  - build-docs
   - deploy
 
 lint:jshint:
@@ -14,7 +15,18 @@ test:mocha:
   stage: test
   script:
     - yarn
-    - nyc mocha
+    - yarn test
+
+test:build-docs:
+  stage: test
+  script:
+    - yarn
+    - yarn build-docs
+    - if ! git diff --quiet -w docs/api; then \
+        git add docs/api; \
+        git commit -m 'Automated docs generation'; \
+        git push; \
+      fi
 
 deploy:github:
   stage: deploy

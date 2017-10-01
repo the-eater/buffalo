@@ -9,7 +9,8 @@
     "buffalo-generate": "./bin/buffalo-generate"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "nyc mocha",
+    "build-docs": "jsdoc -c .jsdoc.json"
   },
   "version": "1.0.0",
   "description": "Managing memory like it's C",

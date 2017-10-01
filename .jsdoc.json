@@ -1,0 +1,10 @@
+{
+    "plugins": ["plugins/markdown"],
+    "source": {
+        "include": ["lib/"]
+    },
+    "opts": {
+        "destination": "docs/api",
+        "readme": "README.md"
+    }
+}
