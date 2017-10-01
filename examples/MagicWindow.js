@@ -45,7 +45,7 @@ class MagicWindow {
 
     set name(value) {
         const textArr = (new TextEncoder()).encode(value.substr(0, 24));
-        for (var i = 0; i < textArr.length; i++) {
+        for (let i = 0; i < textArr.length; i++) {
             this.__buffalo.views.Uint8Array[i] = textArr[i];
         }
 
