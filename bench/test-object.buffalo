@@ -1,23 +1,23 @@
 {
   "name": "TestObject",
-  "id": 42,
+  "id": 0,
   "properties": [
     {
-      "name": "hello",
+      "name": "message",
       "type": "string",
-      "length": 24
+      "size": 24
     },
     {
-      "name": "ye",
+      "name": "workerCounter",
       "type": "int32"
     },
     {
-      "name": "l",
+      "name": "mainCounter",
+      "type": "uint32"
+    },
+    {
+      "name": "recipient",
       "type": "uint8"
-    },
-    {
-      "name": "no",
-      "type": "int32"
     }
   ]
 }
