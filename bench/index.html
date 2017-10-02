@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bench</title>
+    <script src="./TestObject.js"></script>
+</head>
+<body>
+    <h1>Buffalo ft. WebWorker</h1>
+
+    <p>
+        The main purpose of Buffalo was not serialisation as it may seem
+        but a way to communicate between WebWorker's and the main window thread without overhead.
+
+        Buffalo allows to mutate complex objects on multiple threads without having to worry about keeping them in sync.
+        While Buffalo may seem like a complex workaround for this, it performs amazingly when used for this case.
+
+        In this case we have 1 simple object
+
+        <pre>
+const origin = {
+    message: "start",
+    workerCounter: 0,
+    mainCounter: 0,
+    recipient: 0,
+}
+        </pre>
+
+        or in buffalo definition
+
+        <pre>
+{
+  "name": "TestObject",
+  "id": 0,
+  "properties": [
+    {
+      "name": "message",
+      "type": "string",
+      "length": 24
+    },
+    {
+      "name": "workerCounter",
+      "type": "int32"
+    },
+    {
+      "name": "mainCounter",
+      "type": "int32"
+    },
+    {
+      "name": "recipient",
+      "type": "uint8"
+    }
+  ]
+}
+        </pre>
+
+        which will be passed around and mutated in the worker and main thread.
+
+        the main thread will do the following mutation:
+
+        <pre>
+function mutate(obj) {
+    obj.mainCounter++;
+    obj.message = "main: " + obj.workerCounter;
+    obj.recipient = 0;
+}
+        </pre>
+
+        while the worker thread will do the following mutation:
+
+        <pre>
+function mutate(obj) {
+    obj.workerCounter++;
+    obj.message = "worker: " + obj.workerCounter;
+    obj.recipient = 1;
+}
+        </pre>
+
+        Now we have 4 methods this mutation will be passed around
+
+        <ul>
+            <li>Plain Object</li>
+            <li>Transferable Buffer</li>
+            <li>SharedArrayBuffer with message notification</li>
+            <li>SharedArrayBuffer with lock and wait</li>
+        </ul>
+    </p>
+
+    <h2>Plain Object</h2>
+
+    <p>
+        This is the most simple transport and mostly used today.
+
+        <pre>
+worker.postMessage({
+    type: 'object',
+    obj: obj
+});
+        </pre>
+
+        <button onclick="doTestSimpleObject()" id="po">Run 100000 roundtrips</button>
+
+        <pre id="po-result">
+No result yet
+        </pre>
+    </p>
+
+    <h2>Transferable Buffer</h2>
+
+    <p>
+        While this may sound faster, it is not. at least not for simple objects this small.
+        Everytime a Transferable buffer is detached our Buffalo object is invalidated and we need to create a new one.
+        This is why this is slower than just simple object passing.
+
+        <pre>
+let object = new TestObject({ buffer: buffer, offset: 0 });
+mutate(object)
+worker.postMessage({
+    type: 'buffer',
+    buffer: buffer
+}, [buffer]);
+        </pre>
+
+        <button onclick="doTestBuffer()" id="tb">Run 100000 roundtrips</button>
+
+        <pre id="tb-result">
+No result yet
+        </pre>
+    </p>
+
+    <h2>SharedArrayBuffer with message notification</h2>
+
+    <p>
+        So logically using an SharedArrayBuffer combined with message passing would be faster.
+        We now pass the buffer once, and then just get a message from the Worker that our data is available for pick up, we mutate it, and we poke the worker etc.<br/>
+
+        This is not much faster, because the biggest bottleneck is actually the postMessage
+
+        <br/>
+        <br/>
+Setup:
+<pre>
+let buffer = new SharedArrayBuffer(TestObject.size);
+let object = new TestObject({ buffer: buffer, offset: 0 });
+
+worker.postMessage({
+    type: 'shared-buffer-push',
+    buffer: buffer
+});
+</pre>
+
+Mutation:
+<pre>
+// Yes. that's all, it's mapped directly to shared memory :)
+mutate(object);
+</pre>
+<br>
+        <button onclick="doTestSharedBuffer()" id="sb">Run 100000 roundtrips</button>
+
+        <pre id="sb-result">
+No result yet
+        </pre>
+    </p>
+
+
+    <h2>SharedArrayBuffer with lock and wait</h2>
+    <p>
+        So now we only push 1 message to the worker. which says, take this data, and wait on this lock to release and mutate it, and so does our mainthread, e.g. the code of the main thread actually looks like this:
+
+        <pre>
+while (todo > 0) {
+    // Wait for the object to be released from worker
+    if (object.recipient === 1) {
+        mutate(object);
+        todo--;
+     }
+}
+
+// While worker is still busy, "wait"
+while(object.recipient === 0) { }
+        </pre>
+
+        This kills the main thread, but is 10-20x faster
+
+        <br/>
+        <br/>
+
+        <button onclick="doTestSharedBufferWait()" id="sbw">Run 100000 roundtrips</button>
+
+        <pre id="sbw-result">
+No result yet
+        </pre>
+    </p>
+    <script>
+        const worker = new Worker('./worker.js');
+
+        const origin = {
+            message: "start",
+            mainCounter: 0,
+            workerCounter: 0,
+            recipient: 0
+        };
+
+        let start;
+        let stop;
+        const TODO = 100000;
+
+        function done(type, value) {
+            console.log(`${type} took: ${stop - start}, with: ${value.no} ${value.ye} ${value.hello}`);
+        }
+
+        function transform(obj) {
+            obj.mainCounter++;
+            obj.message = "main: " + obj.workerCounter;
+            obj.recipient = 0;
+        }
+
+        function testSimpleObject(cb) {
+            let obj = Object.assign({}, origin);
+
+            start = performance.now();
+            let todo = TODO;
+
+            worker.onmessage = ({ data }) => {
+
+                todo--;
+                if (todo > 0) {
+                    transform(data.obj);
+                    worker.postMessage({
+                        type: 'object',
+                        obj: data.obj
+                    });
+                    return;
+                }
+
+                stop = performance.now();
+
+                cb(data.obj, stop - start);
+            }
+
+            worker.postMessage({
+                type: 'object',
+                obj: obj
+            });
+        }
+
+        function testBuffer(cb) {
+            let buffer = new ArrayBuffer(TestObject.size);
+            let obj = new TestObject({ buffer: buffer,  offset: 0 });
+            Object.assign(obj, origin);
+
+            start = performance.now();
+            let todo = TODO;
+
+            worker.onmessage = ({ data }) => {
+                obj = new TestObject({ buffer: data.buffer,  offset: 0 });
+
+                todo--;
+                if (todo > 0) {
+                    transform(obj);
+                    worker.postMessage({
+                        type: 'buffer',
+                        buffer: data.buffer
+                    }, [data.buffer]);
+                    return;
+                }
+
+                stop = performance.now();
+
+                cb(obj, stop - start);
+            }
+
+            worker.postMessage({
+                type: 'buffer',
+                buffer: buffer
+            }, [buffer]);
+        }
+
+
+        function testSharedBuffer(cb) {
+            let buffer = new SharedArrayBuffer(TestObject.size);
+            let obj = new TestObject({ buffer: buffer,  offset: 0 });
+            Object.assign(obj, origin);
+
+            start = performance.now();
+            let todo = TODO;
+
+            worker.onmessage = ({ data }) => {
+                todo--;
+                if (todo > 0) {
+                    transform(obj);
+                    worker.postMessage(0);
+                    return;
+                }
+
+                stop = performance.now();
+
+                cb(obj, stop - start);
+            }
+
+            worker.postMessage({
+                type: 'shared-buffer-push-init',
+                buffer: buffer
+            });
+        }
+
+        function testSharedBufferWait(cb) {
+            let buffer = new SharedArrayBuffer(TestObject.size);
+            let obj = new TestObject({ buffer: buffer,  offset: 0 });
+            Object.assign(obj, origin);
+
+            start = performance.now();
+            let todo = TODO;
+
+            worker.postMessage({
+                type: 'shared-buffer-init',
+                buffer: buffer
+            });
+
+            todo--;
+            while (todo > 0) {
+                if (obj.recipient === 1) {
+                    transform(obj);
+                    todo--;
+                 }
+            }
+
+            while(obj.recipient === 0) { }
+
+            stop = performance.now();
+            obj.recipient = 2;
+            cb(obj, stop - start);
+        }
+
+        function doTestSimpleObject() {
+            document.getElementById('po-result').textContent = 'Running...';
+            testSimpleObject((obj, time) => {
+                document.getElementById('po-result').textContent = report(obj, time)
+            });
+        }
+
+        function doTestBuffer() {
+            document.getElementById('tb-result').textContent = 'Running...';
+            testBuffer((obj, time) => {
+                document.getElementById('tb-result').textContent = report(obj, time)
+            });
+        }
+
+        function doTestSharedBuffer() {
+            document.getElementById('sb-result').textContent = 'Running...';
+            testSharedBuffer((obj, time) => {
+                document.getElementById('sb-result').textContent = report(obj, time)
+            });
+        }
+
+        function doTestSharedBufferWait() {
+            document.getElementById('sbw-result').textContent = 'Running...';
+            testSharedBufferWait((obj, time) => {
+                document.getElementById('sbw-result').textContent = report(obj, time)
+            });
+        }
+
+        function report(obj, time) {
+            return `time: ${time}ms
+updates p/s: ${(1000 / time) * TODO}
+object:
+${JSON.stringify(obj, null, 4)}`
+        }
+    </script>
+</body>
+</html>

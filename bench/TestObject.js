@@ -1,16 +1,19 @@
 class TestObject {
-    constructor(buffer, offset) {
+    constructor({
+        buffer,
+        offset
+    }) {
         this.__buffalo = {
             data: {
-                hello: {
+                message: {
                     value: "",
                     revision: -1,
-                }
+                },
             },
             views: {
-                Uint32Array: new Uint32Array(buffer, offset, 3),
-                Uint8Array: new Uint8Array(buffer, offset + 12, 97),
-                Int32Array: new Int32Array(buffer, offset + 112, 2)
+                Uint32Array: new Uint32Array(buffer, offset, 4),
+                Uint8Array: new Uint8Array(buffer, offset + 16, 97),
+                Int32Array: new Int32Array(buffer, offset + 116, 1)
             },
             buffer: buffer,
             offset: offset
@@ -19,61 +22,78 @@ class TestObject {
         this.__buffalo.views.Uint32Array[0] = TestObject.id;
     }
 
-    get hello() {
+    get message() {
         const currentRevision = this.__buffalo.views.Uint32Array[1];
-        if (this.__buffalo.data.hello.revision === currentRevision) {
-            return this.__buffalo.data.hello.value;
+        if (this.__buffalo.data.message.revision === currentRevision) {
+            return this.__buffalo.data.message.value;
         }
 
-        this.__buffalo.data.hello.revision = currentRevision;
+        this.__buffalo.data.message.revision = currentRevision;
 
         const length = this.__buffalo.views.Uint32Array[2];
-        const textView = new Uint8Array(this.__buffalo.buffer, this.__buffalo.offset + 12, length).slice();
+        const textView = new Uint8Array(this.__buffalo.buffer, this.__buffalo.offset + 16, length).slice();
 
-        this.__buffalo.data.hello.value = (new TextDecoder()).decode(textView);
-        return this.__buffalo.data.hello.value;
+        this.__buffalo.data.message.value = (new TextDecoder()).decode(textView);
+        return this.__buffalo.data.message.value;
     }
 
-    set hello(value) {
+    set message(value) {
         const textArr = (new TextEncoder()).encode(value.substr(0, 24));
-        for (var i = 0; i < textArr.length; i++) {
+        for (let i = 0; i < textArr.length; i++) {
             this.__buffalo.views.Uint8Array[i] = textArr[i];
         }
 
-        this.__buffalo.data.hello.value = value;
+        this.__buffalo.data.message.value = value;
         this.__buffalo.views.Uint32Array[2] = textArr.length;
         this.__buffalo.views.Uint32Array[1]++;
     }
 
-    get ye() {
+    get workerCounter() {
         return this.__buffalo.views.Int32Array[0];
     }
 
-    set ye(value) {
+    set workerCounter(value) {
         this.__buffalo.views.Int32Array[0] = value;
     }
 
-    get l() {
+    get mainCounter() {
+        return this.__buffalo.views.Uint32Array[3];
+    }
+
+    set mainCounter(value) {
+        this.__buffalo.views.Uint32Array[3] = value;
+    }
+
+    get recipient() {
         return this.__buffalo.views.Uint8Array[96];
     }
 
-    set l(value) {
+    set recipient(value) {
         this.__buffalo.views.Uint8Array[96] = value;
     }
 
-    get no() {
-        return this.__buffalo.views.Int32Array[1];
+    toJSON() {
+        return {
+            message: this.message,
+            workerCounter: this.workerCounter,
+            mainCounter: this.mainCounter,
+            recipient: this.recipient,
+        }
     }
 
-    set no(value) {
-        this.__buffalo.views.Int32Array[1] = value;
+    free() {
+        if (this.__buffalo.memoryManager) {
+            this.__buffalo.memoryManager.position.free();
+        }
+
+        return false;
     }
 
     static get id() {
-        return 42;
+        return 0;
     }
 
-    static get length() {
+    static get size() {
         return 120;
     }
 }
