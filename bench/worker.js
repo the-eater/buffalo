@@ -1,3 +1,5 @@
+"use strict";
+
 importScripts('./TestObject.js');
 
 function transform(x) {
