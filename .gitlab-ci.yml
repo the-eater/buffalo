@@ -46,6 +46,7 @@ docs-build:
     - git checkout master
     - yarn
     - yarn build-docs
+    - mv bench docs/
   artifacts:
     paths:
     - docs/
@@ -62,7 +63,6 @@ docs-deploy:github:
     - echo "${DEPLOY_KEY}" > "/root/.ssh/id_rsa"
     - chmod 600 /root/.ssh/id_rsa
     - echo "${HOSTKEY}" > "/root/.ssh/known_hosts"
-    - mv bench docs/
     - mv docs /root/docs
     - git checkout gh-pages
     - git reset *
