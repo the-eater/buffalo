@@ -9,7 +9,7 @@
     "buffalo-generate": "./bin/buffalo-generate"
   },
   "scripts": {
-    "test": "nyc mocha",
+    "test": "nyc mocha --recursive",
     "build-docs": "jsdoc -c .jsdoc.json"
   },
   "version": "1.0.0",
