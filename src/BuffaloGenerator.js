@@ -67,6 +67,11 @@ class ${this.name} {
 
   ${this.generateProperties()}
 
+  toJSON() {
+    return {
+    ${this.definition.reduce((carry, item) => `${carry}${item.name}: this.${item.name},\n`,"")}}
+  }
+
   free() {
     if (this.__buffalo.memoryManager) {
       this.__buffalo.memoryManager.position.free();
