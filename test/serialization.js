@@ -1,11 +1,10 @@
 const fs = require('fs');
 const assert = require('assert');
 const {JSHINT} = require('jshint');
-const { BuffaloGenerator } = require(__dirname + '/../index.js');
+const { BuffaloGenerator } = require('../index.js');
 const { MagicWindow } = require('../examples/MagicWindow');
 const definition = JSON.parse(fs.readFileSync(__dirname + '/../examples/magic-window.buffalo'));
 const jshintConfig = JSON.parse(fs.readFileSync(__dirname + '/../.jshintrc'));
-
 
 describe('BuffaloGenerator', () => {
   let obj;

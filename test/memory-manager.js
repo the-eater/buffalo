@@ -16,7 +16,7 @@ describe('MemoryManager', () => {
       () => {
         x.createType(MagicWindow);
       },
-      /Can't find place to allocate/
+      /Can't allocate more memory than page size/
     );
   });
 
@@ -66,11 +66,13 @@ describe('MemoryManager', () => {
     let x = new MemoryManager({ pageSize: 20 });
 
     x.alloc(10);
+    assert.equal(x.pages[0].biggestGap, 10);
     x.free(0, 6, 2);
     x.free(0, 2, 2);
     x.free(0, 0, 2);
     x.free(0, 4, 2);
     x.alloc(10);
+    assert.equal(x.pages[0].biggestGap, 8);
     x.free(0, 16, 2);
     x.free(0, 18, 2);
     x.free(0, 12, 2);
@@ -80,6 +82,27 @@ describe('MemoryManager', () => {
     })
 
   })
+});
+
+describe('MemoryPage', () => {
+  it('#alloc', () => {
+    let x = new MemoryManager({ pageSize: 20, size: 20 });
+    let page = x.pages[0];
+
+    assert.throws(() => {
+      page.alloc(30);
+    });
+  });
+});
+
+describe('MemoryPosition', () => {
+  it('#free', () => {
+    let x = new MemoryManager({ pageSize: 20 });
+    let y = x.alloc(10);
+    assert.equal(x.pages[0].biggestGap, 10);
+    y.free();
+    assert.equal(x.pages[0].biggestGap, 20);
+  });
 });
 
 it('splitZoomBetween', () => {
@@ -94,10 +117,35 @@ it('splitZoomBetween', () => {
   }), [3, 5]);
 
   assert.deepEqual(splitZoomBetween(x, (a, b) => {
+    if (b - a === 2) {
+      return a > 2 ? 1 : -1;
+    }
+
+    return 1;
+  }), [3, 4]);
+
+  assert.deepEqual(splitZoomBetween(x, (a, b) => {
+    if (b - a === 2) {
+      return a < 2 ? 0 : -1;
+    }
+
+    return 1;
+  }), [1, 3]);
+
+  assert.deepEqual(splitZoomBetween(x, (a, b) => {
+    if (b - a === 2) {
+      return -1;
+    }
+
+    return 1;
+  }), null);
+
+  assert.deepEqual(splitZoomBetween(x, (a, b) => {
     if (b - a === 4) {
       return 0;
     }
   }), [1, 5]);
 
   assert.equal(splitZoomBetween([], () => {}), null);
+  assert.equal(splitZoomBetween([1,2,3], () => -1), null);
 });

@@ -32,16 +32,15 @@ Types.definitions = {
     definitions: ({name, offsets, size, globalOffsets}) => {
       return {
         get: `const currentRevision = this.__buffalo.views.Uint32Array[${offsets.Uint32Array}];
-        if (this.__buffalo.data.${name}.revision === currentRevision) {
-          return this.__buffalo.data.${name}.value;
+        if (this.__buffalo.data.${name}.revision !== currentRevision) {
+          this.__buffalo.data.${name}.revision = currentRevision;
+
+          const length = this.__buffalo.views.Uint32Array[${offsets.Uint32Array + 1}];
+          const textView = new Uint8Array(this.__buffalo.buffer, this.__buffalo.offset + ${offsets.Uint8Array + globalOffsets.Uint8Array}, length).slice();
+
+          this.__buffalo.data.${name}.value = (new TextDecoder()).decode(textView);
         }
 
-        this.__buffalo.data.${name}.revision = currentRevision;
-
-        const length = this.__buffalo.views.Uint32Array[${offsets.Uint32Array + 1}];
-        const textView = new Uint8Array(this.__buffalo.buffer, this.__buffalo.offset + ${offsets.Uint8Array + globalOffsets.Uint8Array}, length).slice();
-
-        this.__buffalo.data.${name}.value = (new TextDecoder()).decode(textView);
         return this.__buffalo.data.${name}.value;`,
         set: `const textArr = (new TextEncoder()).encode(value.substr(0, ${size}));
         for (let i = 0; i < textArr.length; i++) {
@@ -66,7 +65,7 @@ Types.definitions = {
   float32: typed(Float32Array),
   float64: typed(Float64Array),
 
-  reference: {
+  pointer: {
     count: () => {
       return [
         [Uint32Array, 2]
@@ -85,13 +84,13 @@ Types.definitions = {
   this.__buffalo.data.${name}.cache = this.__buffalo.memoryManager.extract(this.__buffalo.views.Uint32Array[${offsets.Uint32Array}], this.__buffalo.views.Uint32Array[${offsets.Uint32Array + 1}]);
 }
 
-return this.__buffalo.data.${name}.cache`,
+return this.__buffalo.data.${name}.cache;`,
         set: `if (!value.__buffalo && !value.__buffalo.memoryManager) {
   throw new Error('Given value is not an Buffalo object or not controlled by memory manager');
 }
 
-this.__buffalo.data.position[0] = value.__buffalo.memoryManager.position.page
-this.__buffalo.data.position[1] = value.__buffalo.memoryManager.position.offset
+this.__buffalo.data.position[0] = value.__buffalo.memoryManager.position.page;
+this.__buffalo.data.position[1] = value.__buffalo.memoryManager.position.offset;
 
 this.__buffalo.data.${name}.cache = value`,
         extra: {

@@ -34,16 +34,15 @@ class MagicWindow {
 
     get name() {
         const currentRevision = this.__buffalo.views.Uint32Array[1];
-        if (this.__buffalo.data.name.revision === currentRevision) {
-            return this.__buffalo.data.name.value;
+        if (this.__buffalo.data.name.revision !== currentRevision) {
+            this.__buffalo.data.name.revision = currentRevision;
+
+            const length = this.__buffalo.views.Uint32Array[2];
+            const textView = new Uint8Array(this.__buffalo.buffer, this.__buffalo.offset + 20, length).slice();
+
+            this.__buffalo.data.name.value = (new TextDecoder()).decode(textView);
         }
 
-        this.__buffalo.data.name.revision = currentRevision;
-
-        const length = this.__buffalo.views.Uint32Array[2];
-        const textView = new Uint8Array(this.__buffalo.buffer, this.__buffalo.offset + 20, length).slice();
-
-        this.__buffalo.data.name.value = (new TextDecoder()).decode(textView);
         return this.__buffalo.data.name.value;
     }
 
@@ -80,7 +79,7 @@ class MagicWindow {
             this.__buffalo.data.next.cache = this.__buffalo.memoryManager.extract(this.__buffalo.views.Uint32Array[3], this.__buffalo.views.Uint32Array[4]);
         }
 
-        return this.__buffalo.data.next.cache
+        return this.__buffalo.data.next.cache;
     }
 
     set next(value) {
@@ -88,8 +87,8 @@ class MagicWindow {
             throw new Error('Given value is not an Buffalo object or not controlled by memory manager');
         }
 
-        this.__buffalo.data.position[0] = value.__buffalo.memoryManager.position.page
-        this.__buffalo.data.position[1] = value.__buffalo.memoryManager.position.offset
+        this.__buffalo.data.position[0] = value.__buffalo.memoryManager.position.page;
+        this.__buffalo.data.position[1] = value.__buffalo.memoryManager.position.offset;
 
         this.__buffalo.data.next.cache = value
     }
@@ -101,6 +100,15 @@ class MagicWindow {
     set _next(value) {
         this.__buffalo.data.position[0] = value[0];
         this.__buffalo.data.position[1] = value[1];
+    }
+
+    toJSON() {
+        return {
+            name: this.name,
+            off: this.off,
+            id: this.id,
+            next: this.next,
+        }
     }
 
     free() {
