@@ -46,7 +46,6 @@ docs-build:
     - git checkout master
     - yarn
     - yarn build-docs
-    - mv bench docs/
   artifacts:
     paths:
     - docs/
