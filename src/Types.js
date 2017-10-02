@@ -1,3 +1,5 @@
+"use strict";
+
 const Types = {};
 
 const typed = (type) => {

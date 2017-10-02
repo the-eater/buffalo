@@ -1,3 +1,5 @@
+"use strict";
+
 const Types = require('./Types'),
       beautify = require('js-beautify').js_beautify;
 
