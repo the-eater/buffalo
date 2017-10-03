@@ -19,7 +19,7 @@ const typed = (type) => {
 
 Types.definitions = {
   string: {
-    count: (size) => {
+    count: ({ size }) => {
       return [
         [Uint32Array, 2],
         [Uint8Array, 4 * size]
@@ -73,33 +73,64 @@ Types.definitions = {
         [Uint32Array, 2]
       ];
     },
-    data: () => {
+    data: ({ offsets, name }) => {
       return `{
         cache: undefined,
-        position: [],
+        position: new (class MemoryPointer {
+            constructor(bind) {
+                this.bind = bind
+            }
+
+            get page () {
+                return this.bind.__buffalo.views.Uint32Array[${offsets.Uint32Array}];
+            }
+
+            set page (value) {
+                this.bind.__buffalo.views.Uint32Array[${offsets.Uint32Array}] = value;
+            }
+
+            get offset () {
+                return this.bind.__buffalo.views.Uint32Array[${offsets.Uint32Array + 1}];
+            }
+
+            set offset (value) {
+                this.bind.__buffalo.views.Uint32Array[${offsets.Uint32Array + 1}] = value;
+            }
+
+            toJSON() {
+              return {
+                 page: this.page,
+                 offset: this.offset,
+              }
+            }
+        })(this),
       }`;
     },
-    definitions: ({name, offsets}) => {
+    definitions: ({name, offsets}, { childType = null }) => {
+      let data = `this.__buffalo.data.${name}`;
+      let retrieveTyped = `this.__buffalo.position.memoryManager.getPosition(${data}.position.page, ${data}.position.offset, ${childType}.size).spawn(${childType});`;
+      let retrieveDynamic = `this.__buffalo.position.memoryManager.extractType(${data}.position.page, ${data}.position.offset);`;
       return {
-        get: `if (this.__buffalo.data.${name}.cache === undefined ||
-  (this.__buffalo.data.${name}.position[0] === this.__buffalo.views.Uint32Array[${offsets.Uint32Array}] && this.__buffalo.data.${name}.position[1] === this.__buffalo.views.Uint32Array[${offsets.Uint32Array + 1}])) {
-  this.__buffalo.data.${name}.cache = this.__buffalo.memoryManager.extract(this.__buffalo.views.Uint32Array[${offsets.Uint32Array}], this.__buffalo.views.Uint32Array[${offsets.Uint32Array + 1}]);
+        get: `if (${data}.cache === undefined ||
+            ${data}.position.page !== ${data}.cache.__buffalo.position.page ||
+            ${data}.position.offset !== ${data}.cache.__buffalo.offset) {
+        ${data}.cache = ${ childType !== null ? retrieveTyped : retrieveDynamic };
 }
 
-return this.__buffalo.data.${name}.cache;`,
-        set: `if (!value.__buffalo && !value.__buffalo.memoryManager) {
-  throw new Error('Given value is not an Buffalo object or not controlled by memory manager');
+return ${data}.cache;`,
+        set: `if (!value.__buffalo && !value.__buffalo.position) {
+  throw new Error('Given value is not an Buffalo object or not managed by memory manager');
 }
 
-this.__buffalo.data.position[0] = value.__buffalo.memoryManager.position.page;
-this.__buffalo.data.position[1] = value.__buffalo.memoryManager.position.offset;
+${data}.position.page = value.__buffalo.position.page;
+${data}.position.offset = value.__buffalo.offset;
 
-this.__buffalo.data.${name}.cache = value`,
+${data}.cache = value;`,
         extra: {
           [`_${name}`]: {
-            get: `return this.__buffalo.data.position`,
-            set: `this.__buffalo.data.position[0] = value[0];
-this.__buffalo.data.position[1] = value[1];`,
+            get: `return ${data}.position`,
+            set: `${data}.position.offset = value.offset;
+${data}.position.page = value.page;`,
           }
         }
       };
