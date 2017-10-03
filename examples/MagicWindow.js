@@ -7,7 +7,8 @@ if(module) {
 class MagicWindow {
     constructor({
         buffer,
-        offset
+        offset,
+        position = null
     }) {
         this.__buffalo = {
             data: {
@@ -17,7 +18,32 @@ class MagicWindow {
                 },
                 next: {
                     cache: undefined,
-                    position: [],
+                    position: new(class MemoryPointer extends Array {
+                        constructor(bind) {
+                            super(2);
+                            this.bind = bind
+                        }
+
+                        get[0]() {
+                            return this.bind.__buffalo.views.Uint32Array[3];
+                        }
+
+                        set[0](value) {
+                            super[0] = this.bind.__buffalo.views.Uint32Array[3] = value;
+                        }
+
+                        get[1]() {
+                            return this.bind.__buffalo.views.Uint32Array[4];
+                        }
+
+                        set[1](value) {
+                            super[1] = this.bind.__buffalo.views.Uint32Array[4] = value;
+                        }
+
+                        toJSON() {
+                            return [this[0], this[1]];
+                        }
+                    })(this),
                 },
             },
             views: {
@@ -26,7 +52,8 @@ class MagicWindow {
                 Int32Array: new Int32Array(buffer, offset + 120, 1)
             },
             buffer: buffer,
-            offset: offset
+            offset: offset,
+            position: position,
         };
 
         this.__buffalo.views.Uint32Array[0] = MagicWindow.id;
@@ -75,31 +102,32 @@ class MagicWindow {
 
     get next() {
         if (this.__buffalo.data.next.cache === undefined ||
-            (this.__buffalo.data.next.position[0] === this.__buffalo.views.Uint32Array[3] && this.__buffalo.data.next.position[1] === this.__buffalo.views.Uint32Array[4])) {
-            this.__buffalo.data.next.cache = this.__buffalo.memoryManager.extract(this.__buffalo.views.Uint32Array[3], this.__buffalo.views.Uint32Array[4]);
+            this.__buffalo.data.next.position[0] !== this.__buffalo.data.next.cache.__buffalo.position.page ||
+            this.__buffalo.data.next.position[1] !== this.__buffalo.data.next.cache.__buffalo.offset) {
+            this.__buffalo.data.next.cache = this.__buffalo.position.memoryManager.getPosition(this.__buffalo.data.next.position[0], this.__buffalo.data.next.position[1], MagicWindow.size).spawn(MagicWindow);;
         }
 
         return this.__buffalo.data.next.cache;
     }
 
     set next(value) {
-        if (!value.__buffalo && !value.__buffalo.memoryManager) {
-            throw new Error('Given value is not an Buffalo object or not controlled by memory manager');
+        if (!value.__buffalo && !value.__buffalo.position) {
+            throw new Error('Given value is not an Buffalo object or not managed by memory manager');
         }
 
-        this.__buffalo.data.position[0] = value.__buffalo.memoryManager.position.page;
-        this.__buffalo.data.position[1] = value.__buffalo.memoryManager.position.offset;
+        this.__buffalo.data.next.position[0] = value.__buffalo.position.page;
+        this.__buffalo.data.next.position[1] = value.__buffalo.offset;
 
-        this.__buffalo.data.next.cache = value
+        this.__buffalo.data.next.cache = value;
     }
 
     get _next() {
-        return this.__buffalo.data.position
+        return this.__buffalo.data.next.position
     }
 
     set _next(value) {
-        this.__buffalo.data.position[0] = value[0];
-        this.__buffalo.data.position[1] = value[1];
+        this.__buffalo.data.next.position[0] = value[0];
+        this.__buffalo.data.next.position[1] = value[1];
     }
 
     toJSON() {
@@ -112,8 +140,8 @@ class MagicWindow {
     }
 
     free() {
-        if (this.__buffalo.memoryManager) {
-            this.__buffalo.memoryManager.position.free();
+        if (this.__buffalo.position) {
+            this.__buffalo.position.free();
         }
 
         return false;
