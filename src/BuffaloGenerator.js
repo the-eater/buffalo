@@ -27,7 +27,7 @@ class BuffaloGenerator {
       }
 
       const typeObj = Types.definitions[type];
-      const sizes = typeObj.count(size);
+      const sizes = typeObj.count({ size });
       const positions = {};
 
       sizes.forEach(([type, count]) => {
@@ -56,12 +56,13 @@ class BuffaloGenerator {
   generate() {
     let js = `
 class ${this.name} {
-  constructor({ buffer, offset }) {
+  constructor({ buffer, offset, position = null }) {
     this.__buffalo = {
       data: ${this.generateData()},
       views: ${this.generateViews()},
       buffer: buffer,
-      offset: offset
+      offset: offset,
+      position: position,
     };
 
     this.__buffalo.views.Uint32Array[0] = ${this.name}.id;
@@ -75,8 +76,8 @@ class ${this.name} {
   }
 
   free() {
-    if (this.__buffalo.memoryManager) {
-      this.__buffalo.memoryManager.position.free();
+    if (this.__buffalo.position) {
+      this.__buffalo.position.free();
     }
 
     return false;
@@ -99,7 +100,7 @@ class ${this.name} {
 
     this.positions.forEach((x) => {
       let [offsets, { name, type, size = 1 }] = x;
-      let definitions = Types.definitions[type].definitions({ name, offsets, size, globalOffsets });
+      let definitions = Types.definitions[type].definitions({ name, offsets, size, globalOffsets }, x[1]);
       properties.push(`get ${name}() {
         ${definitions.get}
       }
@@ -130,8 +131,9 @@ class ${this.name} {
   generateData() {
     let data = "{\n";
 
-    this.definition.forEach(({ name, type, size }) => {
-      let defData = Types.definitions[type].data(name, size);
+    this.positions.forEach((x) => {
+      let [offsets, { name, type, size = 1 }] = x;
+      let defData = Types.definitions[type].data({ name, size, offsets }, x);
       if (defData === undefined) {
         return;
       }
