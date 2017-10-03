@@ -18,30 +18,32 @@ class MagicWindow {
                 },
                 next: {
                     cache: undefined,
-                    position: new(class MemoryPointer extends Array {
+                    position: new(class MemoryPointer {
                         constructor(bind) {
-                            super(2);
                             this.bind = bind
                         }
 
-                        get[0]() {
+                        get page() {
                             return this.bind.__buffalo.views.Uint32Array[3];
                         }
 
-                        set[0](value) {
-                            super[0] = this.bind.__buffalo.views.Uint32Array[3] = value;
+                        set page(value) {
+                            this.bind.__buffalo.views.Uint32Array[3] = value;
                         }
 
-                        get[1]() {
+                        get offset() {
                             return this.bind.__buffalo.views.Uint32Array[4];
                         }
 
-                        set[1](value) {
-                            super[1] = this.bind.__buffalo.views.Uint32Array[4] = value;
+                        set offset(value) {
+                            this.bind.__buffalo.views.Uint32Array[4] = value;
                         }
 
                         toJSON() {
-                            return [this[0], this[1]];
+                            return {
+                                page: this.page,
+                                offset: this.offset,
+                            }
                         }
                     })(this),
                 },
@@ -102,9 +104,9 @@ class MagicWindow {
 
     get next() {
         if (this.__buffalo.data.next.cache === undefined ||
-            this.__buffalo.data.next.position[0] !== this.__buffalo.data.next.cache.__buffalo.position.page ||
-            this.__buffalo.data.next.position[1] !== this.__buffalo.data.next.cache.__buffalo.offset) {
-            this.__buffalo.data.next.cache = this.__buffalo.position.memoryManager.getPosition(this.__buffalo.data.next.position[0], this.__buffalo.data.next.position[1], MagicWindow.size).spawn(MagicWindow);;
+            this.__buffalo.data.next.position.page !== this.__buffalo.data.next.cache.__buffalo.position.page ||
+            this.__buffalo.data.next.position.offset !== this.__buffalo.data.next.cache.__buffalo.offset) {
+            this.__buffalo.data.next.cache = this.__buffalo.position.memoryManager.getPosition(this.__buffalo.data.next.position.page, this.__buffalo.data.next.position.offset, MagicWindow.size).spawn(MagicWindow);;
         }
 
         return this.__buffalo.data.next.cache;
@@ -115,8 +117,8 @@ class MagicWindow {
             throw new Error('Given value is not an Buffalo object or not managed by memory manager');
         }
 
-        this.__buffalo.data.next.position[0] = value.__buffalo.position.page;
-        this.__buffalo.data.next.position[1] = value.__buffalo.offset;
+        this.__buffalo.data.next.position.page = value.__buffalo.position.page;
+        this.__buffalo.data.next.position.offset = value.__buffalo.offset;
 
         this.__buffalo.data.next.cache = value;
     }
@@ -126,8 +128,8 @@ class MagicWindow {
     }
 
     set _next(value) {
-        this.__buffalo.data.next.position[0] = value[0];
-        this.__buffalo.data.next.position[1] = value[1];
+        this.__buffalo.data.next.position.offset = value.offset;
+        this.__buffalo.data.next.position.page = value.page;
     }
 
     toJSON() {
