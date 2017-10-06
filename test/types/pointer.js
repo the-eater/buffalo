@@ -1,5 +1,6 @@
 const assert = require('assert');
 const { BuffaloGenerator, MemoryManager } = require('../../index');
+const { TextEncoder, TextDecoder } = require('text-encoding');
 
 describe('Types', () => {
   describe('pointer', () => {

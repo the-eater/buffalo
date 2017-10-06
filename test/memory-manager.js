@@ -1,6 +1,15 @@
 const assert = require('assert');
 const { MemoryManager, splitZoomBetween } = require('../lib/MemoryManager');
-const { MagicWindow } = require('../examples/MagicWindow');
+const { BuffaloGenerator } = require('../index');
+const { TextEncoder, TextDecoder } = require('text-encoding');
+const fs = require('fs');
+const definition = JSON.parse(fs.readFileSync(__dirname + '/../examples/magic-window.buffalo'));
+
+const x = new BuffaloGenerator(definition.name, definition.properties);
+x.id = definition.id;
+let _temp;
+eval(`_temp = ${x.generate()};`);
+const MagicWindow = _temp;
 
 describe('MemoryManager', () => {
   it('should respect max size', () => {

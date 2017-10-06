@@ -2,19 +2,21 @@ const fs = require('fs');
 const assert = require('assert');
 const {JSHINT} = require('jshint');
 const { BuffaloGenerator } = require('../index.js');
-const { MagicWindow } = require('../examples/MagicWindow');
+const { TextEncoder, TextDecoder } = require('text-encoding');
 const definition = JSON.parse(fs.readFileSync(__dirname + '/../examples/magic-window.buffalo'));
 const jshintConfig = JSON.parse(fs.readFileSync(__dirname + '/../.jshintrc'));
 
 describe('BuffaloGenerator', () => {
   let obj;
   let js;
+  let MagicWindow;
   it('jshint', () => {
     const x = new BuffaloGenerator(definition.name, definition.properties);
     x.id = definition.id;
     js = x.generate();
     JSHINT([js], jshintConfig);
     assert(JSHINT.errors.length > 0, 'Generated code doesn\'t pass JSHint');
+    eval('MagicWindow = ' + js);
   });
 
   it('creates caching strings', () => {
