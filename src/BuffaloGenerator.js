@@ -78,7 +78,7 @@ class ${this.name} {
 
   toJSON() {
     return {
-    ${this.definition.reduce((carry, item) => `${carry}${item.name}: this.${item.name},\n`,"")}}
+    ${this.definition.reduce((carry, item) => `${carry}${item.name}: this.${item.name},\n`,"")}};
   }
 
   free() {

@@ -86,8 +86,8 @@ gulp.task('build-value-objects/generate', (cb) => {
   const header = `//#IF node
 if(module) {
   let polyfill = require('text-encoding');
-  TextEncoder = (() => { try { return TextEncoder } catch (_) { return false; } })() || polyfill.TextEncoder;
-  TextDecoder = (() => { try { return TextDecoder } catch (_) { return false; } })() || polyfill.TextDecoder; 
+  TextEncoder = (() => { try { return TextEncoder; } catch (_) { return false; } })() || polyfill.TextEncoder;
+  TextDecoder = (() => { try { return TextDecoder; } catch (_) { return false; } })() || polyfill.TextDecoder; 
 }
 //#ENDIF`;
   let trailer = `//#IF node

@@ -11,7 +11,8 @@
   "scripts": {
     "build": "gulp",
     "test": "yarn build && nyc mocha --recursive",
-    "build-docs": "jsdoc -c .jsdoc.json"
+    "build-docs": "jsdoc -c .jsdoc.json",
+    "jshint": "yarn build && jshint lib/node index.js"
   },
   "version": "1.0.0",
   "description": "Managing memory like it's C",
