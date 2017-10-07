@@ -14,7 +14,8 @@ stages:
 lint:jshint:
   stage: lint
   script:
-    - jshint index.js src lib
+    - yarn
+    - yarn jshint
 
 test:mocha:
   stage: test
