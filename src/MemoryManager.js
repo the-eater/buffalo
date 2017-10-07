@@ -1,5 +1,7 @@
+//#IF node
 "use strict";
 
+//#ENDIF
 /**
  * This function will constantly compare 2 points with func and zoom in till it has 2 points next to each other, or a perfect match
  *
@@ -16,6 +18,10 @@
  * @return {Number[]|null} null or 2 items
  */
 function splitZoomBetweenIndex(func, start, end) {
+//#IF web
+  "use strict";
+//#ENDIF
+
   let diff = end - start;
 
   if (diff < 1) {
@@ -78,6 +84,10 @@ function splitZoomBetweenIndex(func, start, end) {
  * @return {Array|null} null or 2 items
  */
 function splitZoomBetween(arr, func, start, end) {
+//#IF web
+  "use strict";
+//#ENDIF
+
   start = start || 0;
   end = end || (arr.length - 1);
 
@@ -585,6 +595,7 @@ class MemoryManager {
   }
 }
 
+//#IF node
 try {
   if (module) {
     module.exports = {
@@ -596,3 +607,4 @@ try {
     };
   }
 } catch (e) {}
+//#ENDIF

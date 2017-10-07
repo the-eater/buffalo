@@ -1,8 +1,8 @@
 "use strict";
 
 module.exports = {
-  BuffaloGenerator: require('./src/BuffaloGenerator'),
-  Types: require('./src/Types'),
+  BuffaloGenerator: require('./lib/node/BuffaloGenerator'),
+  Types: require('./lib/node/Types'),
 };
 
-Object.assign(module.exports, require('./lib/MemoryManager'));
+Object.assign(module.exports, require('./lib/node/MemoryManager'));

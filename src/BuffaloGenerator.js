@@ -1,10 +1,11 @@
+//#IF node
 "use strict";
 
 const Types = require('./Types'),
       beautify = require('js-beautify').js_beautify;
 
 class BuffaloGenerator {
-  constructor(name, definition) {
+  constructor(name, definition, id = 0) {
     this.name = name;
     this.definition = definition;
     this.counters = {
@@ -13,10 +14,15 @@ class BuffaloGenerator {
       }
     };
     this.positions = [];
+    this.appendedParts = [];
     this.size = 4;
-    this.id = 0;
+    this.id = id;
 
     this.calculatePositions();
+  }
+
+  append(code) {
+    this.appendedParts.push(code);
   }
 
   calculatePositions() {
@@ -90,10 +96,11 @@ class ${this.name} {
   static get size() {
     return ${this.size};
   }
-}`;
+  ${this.appendedParts.length > 0 ? `\n${this.appendedParts.join("\n\n")}\n` : ''}}
+`;
+    
     return beautify(js) + "\n";
   }
-
   generateProperties() {
     let properties = [];
     const globalOffsets = Object.entries(this.counters).reduce((carry, [key, { offset }]) => { carry[key] = offset; return carry; }, {});
@@ -167,3 +174,4 @@ class ${this.name} {
 }
 
 module.exports = BuffaloGenerator;
+//#ENDIF

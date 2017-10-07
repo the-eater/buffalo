@@ -1,6 +1,5 @@
 const assert = require('assert');
-const { MemoryManager, splitZoomBetween } = require('../lib/MemoryManager');
-const { BuffaloGenerator } = require('../index');
+const { MemoryManager, splitZoomBetween, BuffaloGenerator } = require('../index');
 const { TextEncoder, TextDecoder } = require('text-encoding');
 const fs = require('fs');
 const definition = JSON.parse(fs.readFileSync(__dirname + '/../examples/magic-window.buffalo'));

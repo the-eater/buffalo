@@ -1,7 +1,7 @@
 const fs = require('fs');
 const assert = require('assert');
 const {JSHINT} = require('jshint');
-const { BuffaloGenerator } = require('../index.js');
+const { BuffaloGenerator } = require('../index');
 const { TextEncoder, TextDecoder } = require('text-encoding');
 const definition = JSON.parse(fs.readFileSync(__dirname + '/../examples/magic-window.buffalo'));
 const jshintConfig = JSON.parse(fs.readFileSync(__dirname + '/../.jshintrc'));
