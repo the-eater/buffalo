@@ -15,6 +15,10 @@ describe('Types', () => {
         type: 'pointer',
         name: 'next',
         childType: 'LinkedList',
+      },
+      {
+        type: 'pointer',
+        name: 'link'
       }
     ]);
 
@@ -49,7 +53,7 @@ describe('Types', () => {
 
     it('pointer pos set', () => {
         let next = mm.createType(LinkedList);
-        next.value = "321tset"
+        next.value = "321tset";
         root.next = next;
 
         root._next = { page: 0, offset: next.__buffalo.offset };
